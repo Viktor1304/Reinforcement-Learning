@@ -1,8 +1,9 @@
 import random
+import numpy as np
 import matplotlib.pyplot as plt
 
-ALPHA = 0.2
-EPSILON = 0.3
+ALPHA = 0.9
+EPSILON = 0.1
 GAMMA = 0.9
 
 
@@ -79,10 +80,12 @@ def expected_value_after_opponent(
     return sum(values) / len(values)
 
 
-def simulate_move_agent(board: str, states: dict[str, float]) -> str:
+def simulate_move_agent(
+    board: str, states: dict[str, float], alpha: float, epsilon: float
+) -> str:
     actions = get_successive_positions(board, "1")
 
-    if random.random() < EPSILON:
+    if random.random() < epsilon:
         return random.choice(actions)
 
     best_val = -1
@@ -95,17 +98,17 @@ def simulate_move_agent(board: str, states: dict[str, float]) -> str:
             best_board = a
 
     states.setdefault(board, 0.5)
-    states[board] += ALPHA * (best_val - states[board])
+    states[board] += alpha * (best_val - states[board])
 
     return best_board
 
 
-def simulate_game(states: dict[str, float]) -> int:
+def simulate_game(states: dict[str, float], alpha: float, epsilon: float) -> int:
     board = "000000000"
 
     while True:
         # X move
-        board = simulate_move_agent(board, states)
+        board = simulate_move_agent(board, states, alpha, epsilon)
         w = check_winner(board)
         if w is not None:
             return w
@@ -114,30 +117,33 @@ def simulate_game(states: dict[str, float]) -> int:
         board = simulate_move_opponent(board)
         w = check_winner(board)
         if w is not None:
-            if w == 2:
-                w = -1
-            return w
+            return -1
 
 
 def main():
     states = initialise_states()
 
-    GAME_TEST = 10000
-    GAME_COUNT = 500000
+    GAME_TEST = 1000
+    GAME_COUNT = 100000
+
+    alpha_arr: list[float] = np.linspace(0, ALPHA, GAME_COUNT)
+    epsilon_arr: list[float] = np.linspace(0, EPSILON, GAME_COUNT)
 
     results = []
     wins_arr: list[int] = []
     losses_arr: list[int] = []
 
     for game in range(GAME_COUNT):
-        simulate_game(states)
+        alpha = alpha_arr[-game - 1]
+        epsilon = epsilon_arr[-game - 1]
+        simulate_game(states, alpha, epsilon)
 
         if game % GAME_TEST == 0:
             score = 0
             wins = 0
             losses = 0
             for _ in range(1000):
-                result = simulate_game(states)
+                result = simulate_game(states, alpha, epsilon)
                 if result == 1:
                     wins += 1
                 else:
