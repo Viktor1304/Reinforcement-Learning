@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 ALPHA = 0.9
 EPSILON = 0.1
-GAMMA = 0.9
+DEFAULT_BOARD_VALUE = 0.5
 
 
 def full_board(board_state: str) -> bool:
@@ -36,7 +36,7 @@ def check_winner(board_state: str) -> int | None:
 
 def initialise_states() -> dict[str, float]:
     states = {}
-    states["000000000"] = 0.5
+    states["000000000"] = DEFAULT_BOARD_VALUE
     return states
 
 
@@ -75,7 +75,7 @@ def expected_value_after_opponent(
         elif winner == -1:
             values.append(-1)
         else:
-            values.append(states.setdefault(b, 0.5))  # X turn again
+            values.append(states.setdefault(b, DEFAULT_BOARD_VALUE))  # X turn again
 
     return sum(values) / len(values)
 
@@ -97,7 +97,7 @@ def simulate_move_agent(
             best_val = val
             best_board = a
 
-    states.setdefault(board, 0.5)
+    states.setdefault(board, DEFAULT_BOARD_VALUE)
     states[board] += alpha * (best_val - states[board])
 
     return best_board
