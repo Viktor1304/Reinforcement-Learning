@@ -126,7 +126,7 @@ def main():
     GAME_TEST = 1000
     GAME_COUNT = 100000
 
-    alpha_arr: list[float] = np.linspace(0, ALPHA, GAME_COUNT)
+    alpha_arr: list[float] = np.linspace(ALPHA / 2, ALPHA, GAME_COUNT)
     epsilon_arr: list[float] = np.linspace(0, EPSILON, GAME_COUNT)
 
     results = []
